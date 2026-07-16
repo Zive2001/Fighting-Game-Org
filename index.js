@@ -4,6 +4,8 @@ const c = canvas.getContext('2d');
 canvas.width = 1024;
 canvas.height = 576;
 
+c.imageSmoothingEnabled = false;
+
 c.fillRect(0, 0, canvas.width, canvas.height);
 
 const gravity = 0.7;
@@ -135,16 +137,14 @@ const enemy = new Fighter({
     attackBox:{
 
     offset:{
-        x:0, 
-        y:0,
-        
+        x:-170,
+        y:50,
+
     },
-    width:100,
+    width:170,
     height: 50
     }
 });
-
-console.log(player);
 
 const keys = {
     a: { pressed: false },
@@ -161,6 +161,7 @@ const keys = {
 decreaseTimer()
 
 function animate() {
+    if (gameOver) return;
     window.requestAnimationFrame(animate);
     c.fillStyle = 'black';
     c.fillRect(0, 0, canvas.width, canvas.height);
@@ -214,10 +215,10 @@ function animate() {
             rectangle1: player,
             rectangle2: enemy,
         }) &&
-        player.isAttacking && player.framesCurrent === 4    
+        player.isAttacking && player.frameCurrent === 4
     ) {
         player.isAttacking = false;
-        enemy.health -=20
+        enemy.health = Math.max(enemy.health - 20, 0)
         document.querySelector('#enemyHealth').style.width =enemy.health + '%'
     }
     if (
@@ -225,10 +226,10 @@ function animate() {
             rectangle1: enemy,
             rectangle2: player,
         }) &&
-        enemy.isAttacking
+        enemy.isAttacking && enemy.frameCurrent === 2
     ) {
         enemy.isAttacking = false;
-        player.health -=20
+        player.health = Math.max(player.health - 20, 0)
         document.querySelector('#playerHealth').style.width =player.health + '%'
     }
     //end the game based on health
@@ -296,10 +297,6 @@ window.addEventListener("keyup", (event) => {
             break;
         case 'ArrowLeft':
             keys.ArrowLeft.pressed = false;
-            break;
-        case 'w':
-            keys.a.pressed = false;
-            lastKey = 'w';
             break;
     }
     

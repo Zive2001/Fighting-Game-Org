@@ -83,7 +83,7 @@ class Fighter extends Sprite{
             height: attackBox.height,
         };
         this.color = color;
-        this.isAttacking;
+        this.isAttacking = false;
         this.health = 100
         this.frameCurrent = 0
         this.framesElapsed =0
@@ -95,8 +95,6 @@ class Fighter extends Sprite{
             sprites[sprite].image.src = sprites[sprite].imageSrc
 
         }
-
-        console.log(this.sprites);
     }
 
    
@@ -110,8 +108,6 @@ class Fighter extends Sprite{
         this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
         this.attackBox.position.y = this.position.y +this.attackBox.offset.y;
 
-        c.fillRect(this.attackBox.position.x,this.attackBox.position.y,this.attackBox.width,this.attackBox.height)
-
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
 //gravity function
@@ -120,7 +116,11 @@ class Fighter extends Sprite{
             this.position.y =330
         } else this.velocity.y += gravity;
 
-        console.log(this.position.y)
+        // Reset attacking state once the attack animation finishes,
+        // so a missed swing doesn't keep dealing damage on later overlaps
+        if (this.isAttacking && this.image === this.sprites.attack1.image && this.frameCurrent === this.framesMax - 1) {
+            this.isAttacking = false;
+        }
     }
 
     attack() {
@@ -138,31 +138,36 @@ class Fighter extends Sprite{
                         this.image =this.sprites.idle.image
                         this.framesMax =this.sprites.idle.framesMax
                         this.frameCurrent =0
+                        this.framesElapsed =0
                     }
                     break
                 case 'run':
                     if(this.image !== this.sprites.run.image){
                         this.image =this.sprites.run.image
                         this.framesMax =this.sprites.run.framesMax
-                        this.frameCurrent =0}
+                        this.frameCurrent =0
+                        this.framesElapsed =0}
                     break
                 case 'jump':
                     if(this.image !== this.sprites.jump.image){
                         this.image =this.sprites.jump.image
                         this.framesMax =this.sprites.jump.framesMax
-                        this.frameCurrent =0}
+                        this.frameCurrent =0
+                        this.framesElapsed =0}
                     break
                 case 'fall':
                     if(this.image !== this.sprites.fall.image){
                         this.image =this.sprites.fall.image
                         this.framesMax =this.sprites.fall.framesMax
-                        this.frameCurrent =0}
+                        this.frameCurrent =0
+                        this.framesElapsed =0}
                     break
                 case 'attack1':
                     if(this.image !== this.sprites.attack1.image){
                         this.image =this.sprites.attack1.image
                         this.framesMax =this.sprites.attack1.framesMax
-                        this.frameCurrent =0}
+                        this.frameCurrent =0
+                        this.framesElapsed =0}
                     break
             }
     }

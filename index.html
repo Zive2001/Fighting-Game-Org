@@ -1,39 +1,186 @@
 <head>
+    <meta charset="UTF-8" />
+    <title>Samurai Duel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         *{
             box-sizing: border-box;
+        }
+
+        :root{
+            --ink:#150f1c;
+            --wood-dark:#2e2130;
+            --wood:#5a4569;
+            --gold:#e8c468;
+            --ember:#f0a848;
+            --ember-dark:#c97a2e;
+            --hp:#e3352f;
+            --hp-light:#ff7a5c;
+            --hp-dark:#7c1a17;
+            --hp-track:#241016;
+        }
+
+        html, body{
+            margin: 0;
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, #3a2c47 0%, #150f1c 75%);
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .game-frame{
+            position: relative;
+            display: inline-block;
+            line-height: 0;
+            border: 6px solid var(--wood-dark);
+            outline: 3px solid var(--gold);
+            outline-offset: -11px;
+            box-shadow:
+                0 0 0 4px var(--ink),
+                0 16px 40px rgba(0,0,0,.55);
+            background: #000;
+        }
+
+        canvas{
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        /* ---------- HUD ---------- */
+        .hud{
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 14px 20px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .health-wrap{
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 0;
+        }
+        .health-wrap.enemy{ align-items: flex-end; }
+
+        .fighter-name{
+            color: var(--gold);
+            font-size: 10px;
+            text-shadow: 2px 2px 0 #000;
+            letter-spacing: 1px;
+        }
+
+        .health-bar-outer{
+            position: relative;
+            width: 100%;
+            height: 26px;
+            background: var(--hp-track);
+            border: 3px solid var(--ink);
+            box-shadow: inset 0 0 0 2px #000, 0 3px 0 var(--ink);
+            overflow: hidden;
+        }
+
+        .health-bar-outer::before{
+            content:"";
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 4px, transparent 4px 8px);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #playerHealth, #enemyHealth{
+            position: absolute;
+            top: 2px; bottom: 2px;
+            width: 100%;
+            background: linear-gradient(180deg, var(--hp-light) 0%, var(--hp) 45%, var(--hp-dark) 100%);
+            box-shadow: inset 0 2px 0 rgba(255,255,255,.35);
+            transition: width .4s cubic-bezier(.4,0,.2,1);
+        }
+        #playerHealth{ left: 2px; }
+        #enemyHealth{ right: 2px; }
+
+        /* ---------- Timer ---------- */
+        .timer-wrap{
+            flex-shrink: 0;
+            margin-top: -4px;
+        }
+        #timer{
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, var(--ember) 0%, var(--ember-dark) 100%);
+            border: 3px solid var(--ink);
+            box-shadow: inset 0 0 0 2px #000, 0 3px 0 var(--ink);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            color: #3a1d05;
+            font-size: 20px;
+            text-shadow: 1px 1px 0 rgba(255,255,255,.3);
+        }
+
+        /* ---------- Winner banner ---------- */
+        #displayText{
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,6,14,.72);
+            color: var(--gold);
+            font-size: 30px;
+            text-align: center;
+            text-shadow: 3px 3px 0 #000, 0 0 24px var(--ember);
+            letter-spacing: 2px;
+            z-index: 10;
+            animation: pop .35s ease;
+        }
+
+        @keyframes pop{
+            from{ opacity: 0; transform: scale(.85); }
+            to{ opacity: 1; transform: scale(1); }
         }
     </style>
 
 </head>
 <body>
-    <!--red container div-->
 
-  <div style="position: relative; display: inline-block;">
-    <!--smaller red container div-->
-    <div style ="position: absolute; display: flex;width: 100%; align-items: center;padding: 20px;">
+  <div class="game-frame">
+    <div class="hud">
         <!--Player Health-->
-        <div style=" position: relative;height: 30px; width: 100%;display: flex;justify-content: flex-end;">
-            <div  style="background-color: yellow;height: 30px;width: 100%;"></div>
-        <div id="playerHealth" style="position: absolute;background: blue; top: 0;right: 0;bottom: 0; width: 100%;"></div>
+        <div class="health-wrap player">
+            <span class="fighter-name">MACK</span>
+            <div class="health-bar-outer">
+                <div id="playerHealth"></div>
+            </div>
         </div>
-            <div></div>
+
         <!--Timer-->
-        <div id ="timer" 
-        style = "background-color: red; width: 100px;height: 100px;flex-shrink: 0;display: flex;align-items: center;justify-content: center;">
-        10
+        <div class="timer-wrap">
+            <div id="timer">60</div>
         </div>
-    
+
         <!--Enemy Health-->
-        <div style=" position: relative;height: 30px; width: 100%;">
-        <div  style="background-color: yellow;height: 30px;"></div>
-    <div id="enemyHealth" style="position: absolute;background: blue; top: 0;right: 0;bottom: 0;left: 0;"></div>
+        <div class="health-wrap enemy">
+            <span class="fighter-name">KENJI</span>
+            <div class="health-bar-outer">
+                <div id="enemyHealth"></div>
+            </div>
+        </div>
     </div>
-        <div></div>
-    </div>
-    <div id="displayText"
-     style="position: absolute;color: white;align-items: center;justify-content: center;top: 0;right: 0;bottom: 0;left: 0;display: none;">Tie</div>
-  <canvas></canvas></div>
+
+    <div id="displayText">Tie</div>
+    <canvas></canvas>
+  </div>
+
   <script src="js/utils.js"></script>
 <script src="js/classes.js"></script>
 <script src="index.js"></script>
